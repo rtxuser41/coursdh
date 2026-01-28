@@ -1,0 +1,17 @@
+{
+  "name": "نظام إدارة الدروس الخصوصية",
+  "short_name": "إدارة الدروس",
+  "description": "تتبع الحضور والمدفوعات للتلاميذ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
