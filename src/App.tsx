@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+// ========== TYPES ==========
 type View = "home" | "groupDetail" | "financialReport" | "groupsManagement";
 
 interface Group {
@@ -15,8 +16,10 @@ interface Student {
   groupId: string;
   sessionsOwed: number;
   individualPrice: number | null;
+  collected?: number; // مجموع ما دفعه هذا الطالب (دج)
 }
 
+// ========== localStorage Hook ==========
 function useLocalStorage<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState<T>(() => {
     try {
@@ -30,14 +33,13 @@ function useLocalStorage<T>(key: string, initial: T): [T, React.Dispatch<React.S
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-      console.error(e);
-    }
+    } catch {}
   }, [key, value]);
 
   return [value, setValue];
 }
 
+// ========== HELPERS ==========
 function sortStudentsArabic(students: Student[]): Student[] {
   return [...students].sort((a, b) => a.name.localeCompare(b.name, "ar"));
 }
@@ -48,6 +50,7 @@ function getStatusColor(sessionsOwed: number, threshold: number) {
   return "✅";
 }
 
+// ========== HOME VIEW ==========
 interface HomeProps {
   groups: Group[];
   students: Student[];
@@ -89,7 +92,7 @@ const Home: React.FC<HomeProps> = ({ groups, students, onViewGroup, onViewFinanc
             <div className="relative text-center space-y-3">
               <div className="text-5xl">📊</div>
               <div className="text-xl font-bold">التقرير المالي</div>
-              <div className="text-blue-100 text-sm">الإحصائيات والمدخول</div>
+              <div className="text-blue-100 text-sm">المداخيل المحصلة</div>
             </div>
           </button>
         </div>
@@ -130,6 +133,7 @@ const Home: React.FC<HomeProps> = ({ groups, students, onViewGroup, onViewFinanc
   );
 };
 
+// ========== GROUP DETAIL VIEW ==========
 interface GroupDetailProps {
   group: Group;
   students: Student[];
@@ -389,6 +393,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   );
 };
 
+// ========== FINANCIAL REPORT (بسيط) ==========
 interface FinancialReportProps {
   groups: Group[];
   students: Student[];
@@ -396,44 +401,23 @@ interface FinancialReportProps {
 }
 
 const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onBack }) => {
-  let totalCollected = 0;
-  let totalExpected = 0;
-
   const groupStats = groups.map((group) => {
     const groupStudents = students.filter((s) => s.groupId === group.id);
-    let collected = 0;
-    let expected = 0;
-
-    groupStudents.forEach((student) => {
-      const price = student.individualPrice ?? group.monthlyPrice;
-      expected += price;
-
-      const unitPrice = price / group.sessionsPerMonth;
-      const owed = student.sessionsOwed;
-
-      if (owed > 0) {
-        collected += price - owed * unitPrice;
-      } else {
-        collected += price + Math.abs(owed) * unitPrice;
-      }
-    });
-
-    totalCollected += collected;
-    totalExpected += expected;
-
+    const collected = groupStudents.reduce((sum, s) => sum + (s.collected ?? 0), 0);
     return {
       group,
-      collected: Math.max(0, collected),
-      expected,
-      remaining: Math.max(0, expected - collected),
+      collected,
       studentCount: groupStudents.length,
     };
   });
 
-  const totalRemaining = Math.max(0, totalExpected - totalCollected);
+  const totalCollected = groupStats.reduce((sum, g) => sum + g.collected, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-6" style={{ direction: "rtl" }}>
+    <div
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-6"
+      style={{ direction: "rtl" }}
+    >
       <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
         <div className="flex items-center gap-3">
           <button
@@ -444,69 +428,38 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
           </button>
           <div className="flex-1 text-center">
             <h2 className="text-3xl font-black text-slate-900">📊 التقرير المالي</h2>
-            <p className="text-sm text-slate-500 mt-1">نظرة شاملة على المدخول والديون</p>
+            <p className="text-sm text-slate-500 mt-1">مجموع المداخيل المحصلة من المجموعات</p>
           </div>
         </div>
 
+        {/* البطاقة الإجمالية */}
         <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-3xl p-8 shadow-2xl">
-          <div className="text-center mb-6">
+          <div className="text-center mb-4">
             <div className="text-5xl mb-3">💰</div>
-            <h3 className="text-2xl font-bold opacity-90">المدخول الإجمالي</h3>
+            <h3 className="text-2xl font-bold opacity-90">المبلغ الإجمالي المحصل</h3>
           </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-xs opacity-80 mb-2">المحصّل</div>
-              <div className="text-2xl font-black">{totalCollected.toFixed(0)}</div>
-              <div className="text-xs opacity-70 mt-1">دج</div>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-xs opacity-80 mb-2">المتوقع</div>
-              <div className="text-2xl font-black">{totalExpected.toFixed(0)}</div>
-              <div className="text-xs opacity-70 mt-1">دج</div>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
-              <div className="text-xs opacity-80 mb-2">المتبقي</div>
-              <div className="text-2xl font-black">{totalRemaining.toFixed(0)}</div>
-              <div className="text-xs opacity-70 mt-1">دج</div>
-            </div>
+          <div className="text-center">
+            <div className="text-4xl font-black">{totalCollected.toFixed(0)} دج</div>
           </div>
         </div>
 
+        {/* بطاقات المجموعات */}
         <div className="space-y-4">
-          <h3 className="text-xl font-bold text-slate-900 px-2">📁 تفاصيل المجموعات:</h3>
-
-          {groupStats.map(({ group, collected, expected, remaining, studentCount }) => (
+          {groupStats.map(({ group, collected, studentCount }) => (
             <div
               key={group.id}
               className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <div>
                   <h4 className="text-2xl font-black text-slate-900">{group.name}</h4>
-                  <p className="text-sm text-slate-500 mt-1">
-                    {studentCount} طالب • {group.monthlyPrice} دج
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-slate-500">نسبة التحصيل</div>
-                  <div className="text-3xl font-black text-emerald-600">
-                    {expected > 0 ? ((collected / expected) * 100).toFixed(0) : 0}%
-                  </div>
+                  <p className="text-sm text-slate-500 mt-1">{studentCount} طالب</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-200 rounded-2xl p-4 text-center">
-                  <div className="text-xs text-emerald-700 mb-1">محصّل</div>
-                  <div className="text-2xl font-black text-emerald-800">{collected.toFixed(0)}</div>
-                  <div className="text-xs text-emerald-600 mt-1">دج</div>
-                </div>
-                <div className="bg-gradient-to-br from-rose-50 to-rose-100 border-2 border-rose-200 rounded-2xl p-4 text-center">
-                  <div className="text-xs text-rose-700 mb-1">متبقي</div>
-                  <div className="text-2xl font-black text-rose-800">{remaining.toFixed(0)}</div>
-                  <div className="text-xs text-rose-600 mt-1">دج</div>
-                </div>
+              <div className="mt-2">
+                <div className="text-xs text-slate-500 mb-1">المبلغ المحصل</div>
+                <div className="text-2xl font-black text-emerald-700">{collected.toFixed(0)} دج</div>
               </div>
             </div>
           ))}
@@ -523,6 +476,7 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
   );
 };
 
+// ========== GROUPS MANAGEMENT ==========
 interface GroupsManagementProps {
   groups: Group[];
   students: Student[];
@@ -686,6 +640,7 @@ const GroupsManagement: React.FC<GroupsManagementProps> = ({
   );
 };
 
+// ========== MAIN APP ==========
 function App() {
   const [groups, setGroups] = useLocalStorage<Group[]>("groups_v2", []);
   const [students, setStudents] = useLocalStorage<Student[]>("students_v2", []);
@@ -713,20 +668,35 @@ function App() {
       groupId: currentGroupId,
       sessionsOwed: 0,
       individualPrice: price ? Number(price) : null,
+      collected: 0,
     };
     setStudents([...students, newStudent]);
   };
 
   const markPresent = (id: string) => {
-    setStudents(students.map((s) => (s.id === id ? { ...s, sessionsOwed: s.sessionsOwed + 1 } : s)));
+    setStudents(students.map((s) => (s.id === id ? { ...s, sessionsOwed: s.sessionsOowed + 1 } : s)));
   };
 
   const markPayment = (id: string) => {
     const student = students.find((s) => s.id === id);
     if (!student) return;
+
     const group = groups.find((g) => g.id === student.groupId);
     if (!group) return;
-    setStudents(students.map((s) => (s.id === id ? { ...s, sessionsOwed: s.sessionsOwed - group.sessionsPerMonth } : s)));
+
+    const price = student.individualPrice ?? group.monthlyPrice;
+
+    setStudents(
+      students.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              sessionsOwed: s.sessionsOwed - group.sessionsPerMonth,
+              collected: (s.collected ?? 0) + price,
+            }
+          : s
+      )
+    );
   };
 
   const editStudent = (id: string, name: string, sessions: number, price: string) => {
