@@ -8,6 +8,7 @@ interface Group {
   name: string;
   monthlyPrice: number;
   sessionsPerMonth: number;
+  teacherSessions?: number; // عدد حصص الأستاذ لهذه المجموعة
 }
 
 interface Student {
@@ -146,6 +147,7 @@ interface GroupDetailProps {
   onDeleteStudent: (id: string) => void;
   onNextGroup: () => void;
   onPrevGroup: () => void;
+  onIncTeacherSessions: () => void;
 }
 
 const GroupDetail: React.FC<GroupDetailProps> = ({
@@ -160,6 +162,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   onDeleteStudent,
   onNextGroup,
   onPrevGroup,
+  onIncTeacherSessions,
 }) => {
   const [newName, setNewName] = useState("");
   const [newPrice, setNewPrice] = useState("");
@@ -233,6 +236,22 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
             </button>
           </div>
         )}
+
+        {/* عداد حصص الأستاذ */}
+        <div className="bg-white border-2 border-emerald-200 rounded-2xl p-4 shadow-md flex items-center justify-between">
+          <div>
+            <div className="text-sm text-slate-500 mb-1">عدد حصص الأستاذ لهذه المجموعة</div>
+            <div className="text-2xl font-black text-emerald-700">
+              {group.teacherSessions ?? 0} حصة
+            </div>
+          </div>
+          <button
+            onClick={onIncTeacherSessions}
+            className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl px-4 py-3 text-sm font-bold shadow-md hover:shadow-lg active:scale-95 transition-all"
+          >
+            ➕ إضافة حصة
+          </button>
+        </div>
 
         <form onSubmit={handleAdd} className="bg-white border-2 border-emerald-200 rounded-3xl p-6 shadow-xl space-y-4">
           <div className="text-center">
@@ -453,7 +472,9 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h4 className="text-2xl font-black text-slate-900">{group.name}</h4>
-                  <p className="text-sm text-slate-500 mt-1">{studentCount} طالب</p>
+                  <p className="text-sm text-slate-500 mt-1">
+                    {studentCount} طالب • حصص الأستاذ: {group.teacherSessions ?? 0}
+                  </p>
                 </div>
               </div>
 
@@ -651,7 +672,7 @@ function App() {
   const currentStudents = students.filter((s) => s.groupId === currentGroupId);
 
   const addGroup = (g: Omit<Group, "id">) => {
-    const newGroup = { ...g, id: Date.now().toString() };
+    const newGroup: Group = { ...g, id: Date.now().toString(), teacherSessions: 0 };
     setGroups([...groups, newGroup]);
   };
 
@@ -674,7 +695,9 @@ function App() {
   };
 
   const markPresent = (id: string) => {
-    setStudents(students.map((s) => (s.id === id ? { ...s, sessionsOwed: s.sessionsOowed + 1 } : s)));
+    setStudents(
+      students.map((s) => (s.id === id ? { ...s, sessionsOwed: s.sessionsOwed + 1 } : s))
+    );
   };
 
   const markPayment = (id: string) => {
@@ -702,7 +725,9 @@ function App() {
   const editStudent = (id: string, name: string, sessions: number, price: string) => {
     setStudents(
       students.map((s) =>
-        s.id === id ? { ...s, name, sessionsOwed: sessions, individualPrice: price ? Number(price) : null } : s
+        s.id === id
+          ? { ...s, name, sessionsOwed: sessions, individualPrice: price ? Number(price) : null }
+          : s
       )
     );
   };
@@ -734,14 +759,27 @@ function App() {
 
   const goToNextGroup = () => {
     const idx = groups.findIndex((g) => g.id === currentGroupId);
+    if (idx === -1 || groups.length === 0) return;
     const nextIdx = (idx + 1) % groups.length;
     setCurrentGroupId(groups[nextIdx].id);
   };
 
   const goToPrevGroup = () => {
     const idx = groups.findIndex((g) => g.id === currentGroupId);
+    if (idx === -1 || groups.length === 0) return;
     const prevIdx = idx === 0 ? groups.length - 1 : idx - 1;
     setCurrentGroupId(groups[prevIdx].id);
+  };
+
+  const incTeacherSessionsForCurrentGroup = () => {
+    if (!currentGroupId) return;
+    setGroups(
+      groups.map((g) =>
+        g.id === currentGroupId
+          ? { ...g, teacherSessions: (g.teacherSessions ?? 0) + 1 }
+          : g
+      )
+    );
   };
 
   return (
@@ -789,10 +827,13 @@ function App() {
           onDeleteStudent={deleteStudent}
           onNextGroup={goToNextGroup}
           onPrevGroup={goToPrevGroup}
+          onIncTeacherSessions={incTeacherSessionsForCurrentGroup}
         />
       )}
 
-      {view === "financialReport" && <FinancialReport groups={groups} students={students} onBack={() => setView("home")} />}
+      {view === "financialReport" && (
+        <FinancialReport groups={groups} students={students} onBack={() => setView("home")} />
+      )}
 
       {view === "groupsManagement" && (
         <GroupsManagement
