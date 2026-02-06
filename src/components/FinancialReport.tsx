@@ -51,10 +51,11 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
             }, 0);
 
             return (
-              <div
-                key={group.id}
-                className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all"
-              >
+          {groupStats.map(({ group, collected, studentCount }) => (
+            <div
+              key={group.id}
+              className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all"
+            >
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h4 className="text-2xl font-black text-slate-900">{group.name}</h4>
@@ -109,9 +110,10 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
                   </div>
                 </div>
               )}
-              </div>
-            );
-          })}
+            </div>
+          )})}
+            </div>
+          ))}
 
           {groups.length === 0 && (
             <div className="bg-white border-2 border-slate-200 rounded-3xl p-12 text-center shadow-lg">

@@ -16,6 +16,7 @@ export default function useLocalStorage<T>(key: string, initial: T): [T, React.D
     } catch {
       // ignore write errors (e.g. storage unavailable)
     }
+    } catch {}
   }, [key, value]);
 
   return [value, setValue];

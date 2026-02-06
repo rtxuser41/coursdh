@@ -11,6 +11,10 @@ interface GroupDetailProps {
   onMarkPresent: (id: string) => void;
   onMarkPayment: (id: string) => void;
   onEditStudent: (id: string, name: string, phone: string, sessions: number, price: string) => void;
+  onAddStudent: (name: string, price: string) => void;
+  onMarkPresent: (id: string) => void;
+  onMarkPayment: (id: string) => void;
+  onEditStudent: (id: string, name: string, sessions: number, price: string) => void;
   onDeleteStudent: (id: string) => void;
   onNextGroup: () => void;
   onPrevGroup: () => void;
@@ -37,6 +41,9 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
   const [editSessions, setEditSessions] = useState("");
   const [editPrice, setEditPrice] = useState("");
 
@@ -48,6 +55,8 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
     onAddStudent(newName, newPhone, newPrice);
     setNewName("");
     setNewPhone("");
+    onAddStudent(newName, newPrice);
+    setNewName("");
     setNewPrice("");
   };
 
@@ -62,6 +71,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   const handleEdit = () => {
     if (!editingId || !editName.trim()) return;
     onEditStudent(editingId, editName, editPhone, Number(editSessions), editPrice);
+    onEditStudent(editingId, editName, Number(editSessions), editPrice);
     setEditingId(null);
   };
 
@@ -143,6 +153,8 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
             <input
               type="number"
               className="col-span-2 border-2 border-slate-200 rounded-xl px-4 py-3 text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
+              type="number"
+              className="col-span-1 border-2 border-slate-200 rounded-xl px-4 py-3 text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
               value={newPrice}
               onChange={(e) => setNewPrice(e.target.value)}
               placeholder={`سعر خاص (${group.monthlyPrice})`}
@@ -183,6 +195,10 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
                   {student.phone && <div className="text-xs text-slate-500">📞 {student.phone}</div>}
                 </div>
               </div>
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="text-xl font-bold text-slate-400">{idx + 1}.</span>
+                  <span className="text-lg font-bold text-slate-900">{student.name}</span>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{getStatusColor(student.sessionsOwed, group.sessionsPerMonth)}</span>
                   <span className="px-4 py-2 bg-slate-100 border-2 border-slate-300 rounded-xl font-black text-slate-700">
