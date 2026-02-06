@@ -78,7 +78,6 @@ function App() {
               individualPrice: price ? Number(price) : null,
             }
           : s
-        s.id === id ? { ...s, name, sessionsOwed: sessions, individualPrice: price ? Number(price) : null } : s
       )
     );
   };
