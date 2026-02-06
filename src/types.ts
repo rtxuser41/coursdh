@@ -11,6 +11,7 @@ export interface Group {
 export interface Student {
   id: string;
   name: string;
+  phone?: string;
   groupId: string;
   sessionsOwed: number;
   individualPrice: number | null;

@@ -7,6 +7,10 @@ interface GroupDetailProps {
   students: Student[];
   groups: Group[];
   onBack: () => void;
+  onAddStudent: (name: string, phone: string, price: string) => void;
+  onMarkPresent: (id: string) => void;
+  onMarkPayment: (id: string) => void;
+  onEditStudent: (id: string, name: string, phone: string, sessions: number, price: string) => void;
   onAddStudent: (name: string, price: string) => void;
   onMarkPresent: (id: string) => void;
   onMarkPayment: (id: string) => void;
@@ -32,6 +36,11 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   onIncTeacherSessions,
 }) => {
   const [newName, setNewName] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
   const [newPrice, setNewPrice] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -43,6 +52,9 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
+    onAddStudent(newName, newPhone, newPrice);
+    setNewName("");
+    setNewPhone("");
     onAddStudent(newName, newPrice);
     setNewName("");
     setNewPrice("");
@@ -51,12 +63,14 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   const openEdit = (student: Student) => {
     setEditingId(student.id);
     setEditName(student.name);
+    setEditPhone(student.phone || "");
     setEditSessions(student.sessionsOwed.toString());
     setEditPrice(student.individualPrice?.toString() || "");
   };
 
   const handleEdit = () => {
     if (!editingId || !editName.trim()) return;
+    onEditStudent(editingId, editName, editPhone, Number(editSessions), editPrice);
     onEditStudent(editingId, editName, Number(editSessions), editPrice);
     setEditingId(null);
   };
@@ -130,6 +144,15 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
               placeholder="الاسم الكامل"
             />
             <input
+              className="col-span-1 border-2 border-slate-200 rounded-xl px-4 py-3 text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
+              value={newPhone}
+              onChange={(e) => setNewPhone(e.target.value)}
+              placeholder="رقم الهاتف"
+              inputMode="tel"
+            />
+            <input
+              type="number"
+              className="col-span-2 border-2 border-slate-200 rounded-xl px-4 py-3 text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
               type="number"
               className="col-span-1 border-2 border-slate-200 rounded-xl px-4 py-3 text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
               value={newPrice}
@@ -165,6 +188,13 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
               }`}
             >
               <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-3 flex-1">
+                <span className="text-xl font-bold text-slate-400">{idx + 1}.</span>
+                <div>
+                  <div className="text-lg font-bold text-slate-900">{student.name}</div>
+                  {student.phone && <div className="text-xs text-slate-500">📞 {student.phone}</div>}
+                </div>
+              </div>
                 <div className="flex items-center gap-3 flex-1">
                   <span className="text-xl font-bold text-slate-400">{idx + 1}.</span>
                   <span className="text-lg font-bold text-slate-900">{student.name}</span>
@@ -221,6 +251,16 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
                   className="w-full border-2 border-slate-300 rounded-xl px-4 py-3 text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">رقم الهاتف:</label>
+                <input
+                  className="w-full border-2 border-slate-300 rounded-xl px-4 py-3 text-base focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  inputMode="tel"
                 />
               </div>
 
