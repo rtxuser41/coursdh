@@ -51,6 +51,7 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
             }, 0);
 
             return (
+          {groupStats.map(({ group, collected, studentCount }) => (
             <div
               key={group.id}
               className="bg-white border-2 border-slate-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all"
@@ -111,6 +112,8 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
               )}
             </div>
           )})}
+            </div>
+          ))}
 
           {groups.length === 0 && (
             <div className="bg-white border-2 border-slate-200 rounded-3xl p-12 text-center shadow-lg">
