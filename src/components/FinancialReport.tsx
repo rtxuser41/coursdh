@@ -1,5 +1,6 @@
 import React from "react";
 import type { Group, Student } from "../types";
+import { buildGroupFinanceStats, sumCollected } from "../utils/finance";
 
 interface FinancialReportProps {
   groups: Group[];
@@ -8,20 +9,11 @@ interface FinancialReportProps {
 }
 
 const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onBack }) => {
-  const groupStats = groups.map((group) => {
-    const groupStudents = students.filter((s) => s.groupId === group.id);
-    const collected = groupStudents.reduce((sum, s) => sum + (s.collected ?? 0), 0);
-    return {
-      group,
-      collected,
-      studentCount: groupStudents.length,
-    };
-  });
-
-  const totalCollected = groupStats.reduce((sum, g) => sum + g.collected, 0);
+  const groupStats = buildGroupFinanceStats(groups, students);
+  const totalCollected = sumCollected(groupStats);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-6" style={{ direction: "rtl" }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-fuchsia-50 p-6" style={{ direction: "rtl" }}>
       <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
         <div className="flex items-center gap-3">
           <button
@@ -36,7 +28,7 @@ const FinancialReport: React.FC<FinancialReportProps> = ({ groups, students, onB
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-3xl p-8 shadow-2xl">
+        <div className="bg-gradient-to-br from-indigo-500 via-purple-600 to-fuchsia-600 text-white rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-4">
             <div className="text-5xl mb-3">💰</div>
             <h3 className="text-2xl font-bold opacity-90">المبلغ الإجمالي المحصل</h3>

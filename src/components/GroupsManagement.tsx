@@ -53,7 +53,7 @@ const GroupsManagement: React.FC<GroupsManagementProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-blue-50 p-6" style={{ direction: "rtl" }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-sky-50 p-6" style={{ direction: "rtl" }}>
       <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
         <div className="flex items-center gap-3">
           <button

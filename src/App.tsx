@@ -3,12 +3,13 @@ import FinancialReport from "./components/FinancialReport";
 import GroupDetail from "./components/GroupDetail";
 import GroupsManagement from "./components/GroupsManagement";
 import Home from "./components/Home";
+import { STORAGE_KEYS } from "./constants/storageKeys";
 import useLocalStorage from "./hooks/useLocalStorage";
 import type { Group, Student, View } from "./types";
 
 function App() {
-  const [groups, setGroups] = useLocalStorage<Group[]>("groups_v2", []);
-  const [students, setStudents] = useLocalStorage<Student[]>("students_v2", []);
+  const [groups, setGroups] = useLocalStorage<Group[]>(STORAGE_KEYS.groups, []);
+  const [students, setStudents] = useLocalStorage<Student[]>(STORAGE_KEYS.students, []);
   const [view, setView] = useState<View>("home");
   const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
 
@@ -120,23 +121,6 @@ function App() {
 
   return (
     <>
-      <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scale-in {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.3s ease-out;
-        }
-      `}</style>
-
       {view === "home" && (
         <Home
           groups={groups}

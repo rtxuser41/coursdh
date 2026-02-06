@@ -70,7 +70,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 p-6" style={{ direction: "rtl" }}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-cyan-50 p-6" style={{ direction: "rtl" }}>
       <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
         <div className="flex items-center gap-3">
           <button
@@ -146,7 +146,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({
         </form>
 
         <div className="bg-white border-2 border-slate-200 rounded-3xl shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-l from-slate-700 to-slate-800 text-white px-6 py-4">
+          <div className="bg-gradient-to-l from-slate-800 to-slate-900 text-white px-6 py-4">
             <h3 className="text-xl font-bold">📋 قائمة الطلاب (ترتيب أبجدي)</h3>
           </div>
 
