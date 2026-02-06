@@ -26,11 +26,12 @@ function App() {
     setStudents(students.filter((s) => s.groupId !== id));
   };
 
-  const addStudent = (name: string, price: string) => {
+  const addStudent = (name: string, phone: string, price: string) => {
     if (!currentGroupId) return;
     const newStudent: Student = {
       id: Date.now().toString(),
       name,
+      phone: phone.trim() || undefined,
       groupId: currentGroupId,
       sessionsOwed: 0,
       individualPrice: price ? Number(price) : null,
@@ -65,10 +66,18 @@ function App() {
     );
   };
 
-  const editStudent = (id: string, name: string, sessions: number, price: string) => {
+  const editStudent = (id: string, name: string, phone: string, sessions: number, price: string) => {
     setStudents(
       students.map((s) =>
-        s.id === id ? { ...s, name, sessionsOwed: sessions, individualPrice: price ? Number(price) : null } : s
+        s.id === id
+          ? {
+              ...s,
+              name,
+              phone: phone.trim() || undefined,
+              sessionsOwed: sessions,
+              individualPrice: price ? Number(price) : null,
+            }
+          : s
       )
     );
   };
